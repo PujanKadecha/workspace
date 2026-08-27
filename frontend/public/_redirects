@@ -1,0 +1,2 @@
+/* Vercel: redirect all routes to index.html for client-side routing */
+/* (Vercel uses vercel.json for this — see vercel.json) */
