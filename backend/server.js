@@ -59,15 +59,20 @@ app.post("/api/workspaces/:workspaceId/documents", authenticationToken, createDo
 //-------------------------------------
 
 //----------Server---------------------
+// Start HTTP server immediately — don't block on Redis
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Connect Redis in background — if it fails, API routes still work
 Promise.all([pubClient.connect(), subClient.connect()])
   .then(() => {
     io.adapter(createAdapter(pubClient, subClient));
     console.log("Redis Adapter connected successfully");
     setupSockets(io);
-    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch((err) => {
-    console.error("Failed to connect to Redis", err);
+    console.error("Redis connection failed — real-time collab disabled:", err.message);
+    // Still set up sockets without Redis adapter (single-instance fallback)
+    setupSockets(io);
   });
 
 //-------------------------------------
