@@ -4,7 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const connectionString = process.env.DATABASE_URL;
 
-// Enable SSL for production cloud databases (Neon, Supabase, Railway, etc.)
+
 const pool = new Pool({
   connectionString,
   ssl: process.env.NODE_ENV === "production"
