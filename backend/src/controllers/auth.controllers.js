@@ -12,7 +12,12 @@ const register = async (req, res) => {
     });
     res.status(201).json({ message: "User Created", userId: user.id });
   } catch (err) {
-    res.status(400).json({ error: "Email already in use" });
+    console.error("Register error:", err.message);
+    // P2002 = unique constraint (email already used)
+    if (err.code === "P2002") {
+      return res.status(400).json({ error: "Email already in use" });
+    }
+    res.status(500).json({ error: "Registration failed: " + err.message });
   }
 };
 
