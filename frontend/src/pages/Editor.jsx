@@ -5,6 +5,27 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { API_URL, SOCKET_URL } from "../config";
 
+const MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
+    ["link", "image"],
+    ["clean"],
+  ],
+};
+
+const FORMATS = [
+  "header",
+  "bold", "italic", "underline", "strike", "blockquote",
+  "list", "bullet", "indent",
+  "color", "background",
+  "align",
+  "link", "image",
+];
+
 export default function Editor() {
   const { documentId } = useParams();
   const navigate = useNavigate();
@@ -219,6 +240,8 @@ export default function Editor() {
             theme="snow"
             value={content}
             onChange={handleChange}
+            modules={MODULES}
+            formats={FORMATS}
             style={{ height: "calc(100vh - 180px)", border: "none" }}
           />
         </div>
