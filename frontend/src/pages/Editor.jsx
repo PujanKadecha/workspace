@@ -38,14 +38,14 @@ export default function Editor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savingToDash, setSavingToDash] = useState(false);
-  const [isOwner, setIsOwner] = useState(null); // null = loading
-  const contentRef = useState(null); // ref to always access latest content
+  const [isOwner, setIsOwner] = useState(null); 
+  const contentRef = useState(null); 
 
   useEffect(() => {
     const token = localStorage.getItem("workspace_token");
     if (!token) return navigate("/login");
 
-    // Decode JWT to get logged-in user id
+    
     let myname = "Guest_" + Math.floor(Math.random() * 1000);
     let myId = null;
     try {
@@ -56,7 +56,7 @@ export default function Editor() {
       console.log("Could not Get name from Token");
     }
 
-    // Check ownership
+    
     fetch(`${API_URL}/api/documents/${documentId}/owner`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -92,7 +92,7 @@ export default function Editor() {
     }
   };
 
-  // Manual save (owner only)
+  
   const handleSave = async () => {
     const token = localStorage.getItem("workspace_token");
     setSaving(true);
@@ -119,7 +119,7 @@ export default function Editor() {
     }
   };
 
-  // Save a copy to the logged-in user's own dashboard (shared users)
+  
   const handleSaveToDashboard = async () => {
     const token = localStorage.getItem("workspace_token");
     setSavingToDash(true);

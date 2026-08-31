@@ -1,6 +1,6 @@
 const prisma = require("../lib/prisma");
 
-// Get the ownerId of the workspace a document belongs to
+
 const getDocumentOwner = async (req, res) => {
   const { documentId } = req.params;
   try {
@@ -135,7 +135,7 @@ const createDocument = async (req, res) => {
   }
 };
 
-// Explicitly save document content (manual save)
+
 const saveDocument = async (req, res) => {
   const { documentId } = req.params;
   const { content } = req.body;
@@ -164,14 +164,14 @@ const saveDocument = async (req, res) => {
   }
 };
 
-// Save a shared document to the current user's dashboard (fork/copy)
+
 const saveDocumentToDashboard = async (req, res) => {
   const { documentId } = req.params;
-  const { workspaceId } = req.body; // optional: target workspace id
+  const { workspaceId } = req.body; 
   const userId = req.user.id;
 
   try {
-    // Fetch source document
+    
     const source = await prisma.document.findUnique({
       where: { id: documentId },
     });
@@ -182,7 +182,7 @@ const saveDocumentToDashboard = async (req, res) => {
 
     let targetWorkspaceId = workspaceId;
 
-    // If no workspace specified, use user's first workspace or create one
+    
     if (!targetWorkspaceId) {
       let workspace = await prisma.workspace.findFirst({
         where: { ownerId: userId },
@@ -194,7 +194,7 @@ const saveDocumentToDashboard = async (req, res) => {
       }
       targetWorkspaceId = workspace.id;
     } else {
-      // Verify target workspace belongs to user
+    
       const workspace = await prisma.workspace.findUnique({
         where: { id: targetWorkspaceId },
       });
@@ -203,7 +203,7 @@ const saveDocumentToDashboard = async (req, res) => {
       }
     }
 
-    // Copy the document
+    
     const newDoc = await prisma.document.create({
       data: {
         title: `${source.title} (shared copy)`,
