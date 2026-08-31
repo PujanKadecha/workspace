@@ -14,6 +14,9 @@ const {
   deleteDocument,
   deleteWorkspace,
   createDocument,
+  saveDocument,
+  saveDocumentToDashboard,
+  getDocumentOwner,
 } = require("./src/controllers/workspace.controller");
 const setupSockets = require("./src/sockets/socketManager");
 const PORT = process.env.PORT || 5050;
@@ -56,6 +59,9 @@ app.get("/api/protected", authenticationToken, (req, res) => {
 app.delete("/api/documents/:documentId", authenticationToken, deleteDocument);
 app.delete("/api/workspaces/:workspaceId", authenticationToken, deleteWorkspace);
 app.post("/api/workspaces/:workspaceId/documents", authenticationToken, createDocument);
+app.put("/api/documents/:documentId/save", authenticationToken, saveDocument);
+app.post("/api/documents/:documentId/save-to-dashboard", authenticationToken, saveDocumentToDashboard);
+app.get("/api/documents/:documentId/owner", authenticationToken, getDocumentOwner);
 //-------------------------------------
 
 //----------Server---------------------

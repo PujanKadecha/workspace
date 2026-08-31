@@ -1,5 +1,20 @@
 const prisma = require("../lib/prisma");
 
+// Get the ownerId of the workspace a document belongs to
+const getDocumentOwner = async (req, res) => {
+  const { documentId } = req.params;
+  try {
+    const document = await prisma.document.findUnique({
+      where: { id: documentId },
+      include: { workspace: true },
+    });
+    if (!document) return res.status(404).json({ error: "Not found" });
+    res.json({ ownerId: document.workspace.ownerId });
+  } catch {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 const createWorkspace = async (req, res) => {
   const { name } = req.body;
   const userId = req.user.id;
@@ -120,4 +135,87 @@ const createDocument = async (req, res) => {
   }
 };
 
-module.exports = { createWorkspace, getUserWorkspace, deleteDocument, deleteWorkspace, createDocument };
+// Explicitly save document content (manual save)
+const saveDocument = async (req, res) => {
+  const { documentId } = req.params;
+  const { content } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const document = await prisma.document.findUnique({
+      where: { id: documentId },
+      include: { workspace: true },
+    });
+
+    if (!document) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+    if (document.workspace.ownerId !== userId) {
+      return res.status(403).json({ error: "Not authorized to save this document" });
+    }
+
+    const updated = await prisma.document.update({
+      where: { id: documentId },
+      data: { content },
+    });
+    res.json({ message: "Document saved successfully", document: updated });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to save document" });
+  }
+};
+
+// Save a shared document to the current user's dashboard (fork/copy)
+const saveDocumentToDashboard = async (req, res) => {
+  const { documentId } = req.params;
+  const { workspaceId } = req.body; // optional: target workspace id
+  const userId = req.user.id;
+
+  try {
+    // Fetch source document
+    const source = await prisma.document.findUnique({
+      where: { id: documentId },
+    });
+
+    if (!source) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    let targetWorkspaceId = workspaceId;
+
+    // If no workspace specified, use user's first workspace or create one
+    if (!targetWorkspaceId) {
+      let workspace = await prisma.workspace.findFirst({
+        where: { ownerId: userId },
+      });
+      if (!workspace) {
+        workspace = await prisma.workspace.create({
+          data: { name: "My Workspace", ownerId: userId },
+        });
+      }
+      targetWorkspaceId = workspace.id;
+    } else {
+      // Verify target workspace belongs to user
+      const workspace = await prisma.workspace.findUnique({
+        where: { id: targetWorkspaceId },
+      });
+      if (!workspace || workspace.ownerId !== userId) {
+        return res.status(403).json({ error: "Not authorized to use this workspace" });
+      }
+    }
+
+    // Copy the document
+    const newDoc = await prisma.document.create({
+      data: {
+        title: `${source.title} (shared copy)`,
+        content: source.content,
+        workspaceId: targetWorkspaceId,
+      },
+    });
+
+    res.status(201).json({ message: "Document saved to your dashboard!", document: newDoc });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to save document to dashboard" });
+  }
+};
+
+module.exports = { createWorkspace, getUserWorkspace, deleteDocument, deleteWorkspace, createDocument, saveDocument, saveDocumentToDashboard, getDocumentOwner };

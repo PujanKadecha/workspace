@@ -35,18 +35,36 @@ export default function Editor() {
   const [copied, setCopied] = useState(false);
   const [activeUsers, setActiveUsers] = useState([]);
   const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savingToDash, setSavingToDash] = useState(false);
+  const [isOwner, setIsOwner] = useState(null); // null = loading
+  const contentRef = useState(null); // ref to always access latest content
 
   useEffect(() => {
     const token = localStorage.getItem("workspace_token");
     if (!token) return navigate("/login");
 
+    // Decode JWT to get logged-in user id
     let myname = "Guest_" + Math.floor(Math.random() * 1000);
+    let myId = null;
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       if (payload.name) myname = payload.name;
+      if (payload.id) myId = payload.id;
     } catch (e) {
       console.log("Could not Get name from Token");
     }
+
+    // Check ownership
+    fetch(`${API_URL}/api/documents/${documentId}/owner`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setIsOwner(myId && data.ownerId === myId);
+      })
+      .catch(() => setIsOwner(false));
 
     const newSocket = io(SOCKET_URL, { query: { token } });
     setSocket(newSocket);
@@ -71,6 +89,62 @@ export default function Editor() {
     setContent(value);
     if (socket && source === "user") {
       socket.emit("send-changes", documentId, value);
+    }
+  };
+
+  // Manual save (owner only)
+  const handleSave = async () => {
+    const token = localStorage.getItem("workspace_token");
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/api/documents/${documentId}/save`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to save");
+      }
+    } catch {
+      alert("Network error while saving");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Save a copy to the logged-in user's own dashboard (shared users)
+  const handleSaveToDashboard = async () => {
+    const token = localStorage.getItem("workspace_token");
+    setSavingToDash(true);
+    try {
+      const res = await fetch(
+        `${API_URL}/api/documents/${documentId}/save-to-dashboard`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}),
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Document saved to your dashboard!");
+      } else {
+        alert(data.error || "Failed to save to dashboard");
+      }
+    } catch {
+      alert("Network error");
+    } finally {
+      setSavingToDash(false);
     }
   };
 
@@ -157,9 +231,52 @@ export default function Editor() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "16px",
+            gap: "10px",
           }}
         >
+          {/* Save button — owner only */}
+          {isOwner && (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                background: saved ? "#10b981" : saving ? "#d1fae5" : "#ecfdf5",
+                color: saved ? "white" : "#059669",
+                border: "1px solid #6ee7b7",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                cursor: saving ? "not-allowed" : "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              {saving ? "Saving…" : saved ? "✓ Saved!" : "💾 Save"}
+            </button>
+          )}
+
+          {/* Save to Dashboard — shown to guests/shared users */}
+          {isOwner === false && (
+            <button
+              onClick={handleSaveToDashboard}
+              disabled={savingToDash}
+              style={{
+                background: savingToDash ? "#dbeafe" : "#eff6ff",
+                color: "#1d4ed8",
+                border: "1px solid #93c5fd",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                cursor: savingToDash ? "not-allowed" : "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s",
+              }}
+            >
+              {savingToDash ? "Saving…" : "📥 Save to My Dashboard"}
+            </button>
+          )}
+
           <button
             onClick={handleShare}
             style={{
