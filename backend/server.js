@@ -11,22 +11,27 @@ const { authenticationToken } = require("./src/middlewares/auth.middleware");
 const {
   createWorkspace,
   getUserWorkspace,
-  deleteDocument,
   deleteWorkspace,
+} = require("./src/controllers/workspace.controller");
+
+const {
+  getDocumentOwner,
   createDocument,
+  deleteDocument,
   saveDocument,
   saveDocumentToDashboard,
-  getDocumentOwner,
-} = require("./src/controllers/workspace.controller");
+} = require("./src/controllers/document.controller");
 const setupSockets = require("./src/sockets/socketManager");
 const PORT = process.env.PORT || 5050;
 
 const app = express();
 const server = http.createServer(app);
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "*",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 //----------SocketIO------------
@@ -57,17 +62,32 @@ app.get("/api/protected", authenticationToken, (req, res) => {
   res.json({ message: `Access Granted For ID : ${req.user.id}` });
 });
 app.delete("/api/documents/:documentId", authenticationToken, deleteDocument);
-app.delete("/api/workspaces/:workspaceId", authenticationToken, deleteWorkspace);
-app.post("/api/workspaces/:workspaceId/documents", authenticationToken, createDocument);
+app.delete(
+  "/api/workspaces/:workspaceId",
+  authenticationToken,
+  deleteWorkspace,
+);
+app.post(
+  "/api/workspaces/:workspaceId/documents",
+  authenticationToken,
+  createDocument,
+);
 app.put("/api/documents/:documentId/save", authenticationToken, saveDocument);
-app.post("/api/documents/:documentId/save-to-dashboard", authenticationToken, saveDocumentToDashboard);
-app.get("/api/documents/:documentId/owner", authenticationToken, getDocumentOwner);
+app.post(
+  "/api/documents/:documentId/save-to-dashboard",
+  authenticationToken,
+  saveDocumentToDashboard,
+);
+app.get(
+  "/api/documents/:documentId/owner",
+  authenticationToken,
+  getDocumentOwner,
+);
 //-------------------------------------
 
 //----------Server---------------------
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 
 Promise.all([pubClient.connect(), subClient.connect()])
   .then(() => {
@@ -76,8 +96,11 @@ Promise.all([pubClient.connect(), subClient.connect()])
     setupSockets(io);
   })
   .catch((err) => {
-    console.error("Redis connection failed — real-time collab disabled:", err.message);
-    
+    console.error(
+      "Redis connection failed — real-time collab disabled:",
+      err.message,
+    );
+
     setupSockets(io);
   });
 
