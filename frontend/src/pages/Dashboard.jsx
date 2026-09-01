@@ -45,7 +45,12 @@ export default function Dashboard() {
   };
 
   const handleDeleteWorkspace = async (workspaceId, workspaceName) => {
-    if (!window.confirm(`Delete workspace "${workspaceName}" and ALL its documents? `)) return;
+    if (
+      !window.confirm(
+        `Delete workspace "${workspaceName}" and ALL its documents? `,
+      )
+    )
+      return;
     const res = await fetch(`${API_URL}/api/workspaces/${workspaceId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token()}` },
@@ -60,14 +65,17 @@ export default function Dashboard() {
 
   const handleAddDocument = async (e, workspaceId) => {
     e.preventDefault();
-    const res = await fetch(`${API_URL}/api/workspaces/${workspaceId}/documents`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token()}`,
+    const res = await fetch(
+      `${API_URL}/api/workspaces/${workspaceId}/documents`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+        body: JSON.stringify({ title: newDocTitle }),
       },
-      body: JSON.stringify({ title: newDocTitle }),
-    });
+    );
     if (res.ok) {
       setAddingDocTo(null);
       setNewDocTitle("");
@@ -87,7 +95,6 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
-      
       <header
         style={{
           display: "flex",
@@ -98,14 +105,16 @@ export default function Dashboard() {
       >
         <h1 style={{ fontSize: "28px", color: "#111827" }}>My Workspaces</h1>
         <button
-          onClick={() => { localStorage.clear(); navigate("/login"); }}
+          onClick={() => {
+            localStorage.clear();
+            navigate("/login");
+          }}
           className="btn-danger"
         >
           Logout
         </button>
       </header>
 
-      
       <div
         style={{
           background: "#eff6ff",
@@ -121,14 +130,21 @@ export default function Dashboard() {
         }}
       >
         <div>
-          <h3 style={{ margin: 0, color: "#1e3a8a", fontSize: "16px" }}>Got an invite link?</h3>
+          <h3 style={{ margin: 0, color: "#1e3a8a", fontSize: "16px" }}>
+            Got an invite link?
+          </h3>
           <p style={{ margin: "4px 0 0", color: "#3b82f6", fontSize: "14px" }}>
             Paste it here to join a collaborative document.
           </p>
         </div>
         <form
           onSubmit={handleJoin}
-          style={{ display: "flex", gap: "10px", flexGrow: 1, maxWidth: "500px" }}
+          style={{
+            display: "flex",
+            gap: "10px",
+            flexGrow: 1,
+            maxWidth: "500px",
+          }}
         >
           <input
             type="text"
@@ -137,13 +153,16 @@ export default function Dashboard() {
             onChange={(e) => setJoinLink(e.target.value)}
             style={{ flexGrow: 1 }}
           />
-          <button type="submit" className="btn-primary" style={{ background: "#2563eb" }}>
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{ background: "#2563eb" }}
+          >
             Join
           </button>
         </form>
       </div>
 
-     
       <form
         onSubmit={handleCreate}
         style={{
@@ -162,12 +181,15 @@ export default function Dashboard() {
           value={newWorkspaceName}
           onChange={(e) => setNewWorkspaceName(e.target.value)}
         />
-        <button type="submit" className="btn-primary" style={{ whiteSpace: "nowrap" }}>
+        <button
+          type="submit"
+          className="btn-primary"
+          style={{ whiteSpace: "nowrap" }}
+        >
           + Create Workspace
         </button>
       </form>
 
-      
       <div
         style={{
           display: "grid",
@@ -188,8 +210,13 @@ export default function Dashboard() {
               gap: "12px",
             }}
           >
-           
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <h3 style={{ fontSize: "18px", margin: 0, color: "#374151" }}>
                 📁 {ws.name}
               </h3>
@@ -212,8 +239,9 @@ export default function Dashboard() {
               </button>
             </div>
 
-          
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
               {ws.documents?.map((doc) => (
                 <Link
                   key={doc.id}
@@ -236,7 +264,6 @@ export default function Dashboard() {
               ))}
             </div>
 
-           
             {addingDocTo === ws.id ? (
               <form
                 onSubmit={(e) => handleAddDocument(e, ws.id)}
@@ -274,7 +301,10 @@ export default function Dashboard() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setAddingDocTo(null); setNewDocTitle(""); }}
+                  onClick={() => {
+                    setAddingDocTo(null);
+                    setNewDocTitle("");
+                  }}
                   style={{
                     background: "#f3f4f6",
                     color: "#374151",
@@ -290,7 +320,10 @@ export default function Dashboard() {
               </form>
             ) : (
               <button
-                onClick={() => { setAddingDocTo(ws.id); setNewDocTitle(""); }}
+                onClick={() => {
+                  setAddingDocTo(ws.id);
+                  setNewDocTitle("");
+                }}
                 style={{
                   background: "transparent",
                   color: "#6b7280",
