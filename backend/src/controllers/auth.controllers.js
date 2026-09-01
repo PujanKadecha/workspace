@@ -13,7 +13,7 @@ const register = async (req, res) => {
     res.status(201).json({ message: "User Created", userId: user.id });
   } catch (err) {
     console.error("Register error:", err.message);
-   
+
     if (err.code === "P2002") {
       return res.status(400).json({ error: "Email already in use" });
     }

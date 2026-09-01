@@ -1,6 +1,5 @@
 const prisma = require("../lib/prisma");
 
-
 const getDocumentOwner = async (req, res) => {
   const { documentId } = req.params;
   try {
@@ -30,7 +29,7 @@ const createWorkspace = async (req, res) => {
             content: "",
           },
         },
-      },  
+      },
     });
     res.status(201).json(workspace);
   } catch (err) {
@@ -60,7 +59,6 @@ const deleteDocument = async (req, res) => {
   const userId = req.user.id;
 
   try {
-
     const document = await prisma.document.findUnique({
       where: { id: documentId },
       include: { workspace: true },
@@ -70,7 +68,9 @@ const deleteDocument = async (req, res) => {
       return res.status(404).json({ error: "Document not found" });
     }
     if (document.workspace.ownerId !== userId) {
-      return res.status(403).json({ error: "Not authorized to delete this document" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this document" });
     }
 
     await prisma.document.delete({ where: { id: documentId } });
@@ -93,10 +93,11 @@ const deleteWorkspace = async (req, res) => {
       return res.status(404).json({ error: "Workspace not found" });
     }
     if (workspace.ownerId !== userId) {
-      return res.status(403).json({ error: "Not authorized to delete this workspace" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this workspace" });
     }
 
-   
     await prisma.document.deleteMany({ where: { workspaceId } });
     await prisma.workspace.delete({ where: { id: workspaceId } });
     res.json({ message: "Workspace deleted successfully" });
@@ -119,7 +120,9 @@ const createDocument = async (req, res) => {
       return res.status(404).json({ error: "Workspace not found" });
     }
     if (workspace.ownerId !== userId) {
-      return res.status(403).json({ error: "Not authorized to add documents to this workspace" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to add documents to this workspace" });
     }
 
     const document = await prisma.document.create({
@@ -134,7 +137,6 @@ const createDocument = async (req, res) => {
     res.status(500).json({ error: "Failed to create document" });
   }
 };
-
 
 const saveDocument = async (req, res) => {
   const { documentId } = req.params;
@@ -151,7 +153,9 @@ const saveDocument = async (req, res) => {
       return res.status(404).json({ error: "Document not found" });
     }
     if (document.workspace.ownerId !== userId) {
-      return res.status(403).json({ error: "Not authorized to save this document" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to save this document" });
     }
 
     const updated = await prisma.document.update({
@@ -164,14 +168,12 @@ const saveDocument = async (req, res) => {
   }
 };
 
-
 const saveDocumentToDashboard = async (req, res) => {
   const { documentId } = req.params;
-  const { workspaceId } = req.body; 
+  const { workspaceId } = req.body;
   const userId = req.user.id;
 
   try {
-    
     const source = await prisma.document.findUnique({
       where: { id: documentId },
     });
@@ -182,7 +184,6 @@ const saveDocumentToDashboard = async (req, res) => {
 
     let targetWorkspaceId = workspaceId;
 
-    
     if (!targetWorkspaceId) {
       let workspace = await prisma.workspace.findFirst({
         where: { ownerId: userId },
@@ -194,16 +195,16 @@ const saveDocumentToDashboard = async (req, res) => {
       }
       targetWorkspaceId = workspace.id;
     } else {
-    
       const workspace = await prisma.workspace.findUnique({
         where: { id: targetWorkspaceId },
       });
       if (!workspace || workspace.ownerId !== userId) {
-        return res.status(403).json({ error: "Not authorized to use this workspace" });
+        return res
+          .status(403)
+          .json({ error: "Not authorized to use this workspace" });
       }
     }
 
-    
     const newDoc = await prisma.document.create({
       data: {
         title: `${source.title} (shared copy)`,
@@ -212,10 +213,21 @@ const saveDocumentToDashboard = async (req, res) => {
       },
     });
 
-    res.status(201).json({ message: "Document saved to your dashboard!", document: newDoc });
+    res
+      .status(201)
+      .json({ message: "Document saved to your dashboard!", document: newDoc });
   } catch (err) {
     res.status(500).json({ error: "Failed to save document to dashboard" });
   }
 };
 
-module.exports = { createWorkspace, getUserWorkspace, deleteDocument, deleteWorkspace, createDocument, saveDocument, saveDocumentToDashboard, getDocumentOwner };
+module.exports = {
+  createWorkspace,
+  getUserWorkspace,
+  deleteDocument,
+  deleteWorkspace,
+  createDocument,
+  saveDocument,
+  saveDocumentToDashboard,
+  getDocumentOwner,
+};
