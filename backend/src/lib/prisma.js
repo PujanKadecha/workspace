@@ -4,15 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const connectionString = process.env.DATABASE_URL;
 
-const pool = new Pool({
-  connectionString,
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : false,
-});
-
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 module.exports = prisma;
