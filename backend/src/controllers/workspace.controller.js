@@ -26,7 +26,7 @@ const createWorkspace = async (req, res) => {
         documents: {
           create: {
             title: "Welcome Document",
-            content: "",
+            content: "Welcome to the First Document",
           },
         },
       },
