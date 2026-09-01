@@ -120,7 +120,6 @@ export default function Dashboard() {
         setJoinLink={setJoinLink}
         onJoin={handleJoin}
       />
-      
 
       <form
         onSubmit={handleCreate}

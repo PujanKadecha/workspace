@@ -22,7 +22,6 @@ export default function WorkspaceCard({
         gap: "12px",
       }}
     >
-     
       <div
         style={{
           display: "flex",
@@ -52,7 +51,6 @@ export default function WorkspaceCard({
         </button>
       </div>
 
-      {/* Document List */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {workspace.documents?.map((doc) => (
           <Link
@@ -76,7 +74,6 @@ export default function WorkspaceCard({
         ))}
       </div>
 
-      {/* Add Document Inline Form */}
       {isAddingDoc ? (
         <form
           onSubmit={(e) => onAddDocument(e, workspace.id)}

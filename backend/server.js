@@ -5,22 +5,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { createClient } = require("redis");
 const { createAdapter } = require("@socket.io/redis-adapter");
-
-const { register, login } = require("./src/controllers/auth.controllers");
-const { authenticationToken } = require("./src/middlewares/auth.middleware");
-const {
-  createWorkspace,
-  getUserWorkspace,
-  deleteWorkspace,
-} = require("./src/controllers/workspace.controller");
-
-const {
-  getDocumentOwner,
-  createDocument,
-  deleteDocument,
-  saveDocument,
-  saveDocumentToDashboard,
-} = require("./src/controllers/document.controller");
+const routes = require("./src/routes");
 const setupSockets = require("./src/sockets/socketManager");
 const PORT = process.env.PORT || 5050;
 
@@ -54,35 +39,7 @@ subClient.on("error", (err) => console.log("Redis Sub Error", err));
 //--------------------------
 
 //-------------Routes---------------
-app.post("/api/auth/register", register);
-app.post("/api/auth/login", login);
-app.post("/api/workspaces", authenticationToken, createWorkspace);
-app.get("/api/workspaces", authenticationToken, getUserWorkspace);
-app.get("/api/protected", authenticationToken, (req, res) => {
-  res.json({ message: `Access Granted For ID : ${req.user.id}` });
-});
-app.delete("/api/documents/:documentId", authenticationToken, deleteDocument);
-app.delete(
-  "/api/workspaces/:workspaceId",
-  authenticationToken,
-  deleteWorkspace,
-);
-app.post(
-  "/api/workspaces/:workspaceId/documents",
-  authenticationToken,
-  createDocument,
-);
-app.put("/api/documents/:documentId/save", authenticationToken, saveDocument);
-app.post(
-  "/api/documents/:documentId/save-to-dashboard",
-  authenticationToken,
-  saveDocumentToDashboard,
-);
-app.get(
-  "/api/documents/:documentId/owner",
-  authenticationToken,
-  getDocumentOwner,
-);
+app.use("/api", routes);
 //-------------------------------------
 
 //----------Server---------------------
