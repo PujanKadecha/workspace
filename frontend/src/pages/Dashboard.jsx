@@ -87,7 +87,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
-      {/* Header */}
+      
       <header
         style={{
           display: "flex",
@@ -105,7 +105,7 @@ export default function Dashboard() {
         </button>
       </header>
 
-      {/* Join via invite link */}
+      
       <div
         style={{
           background: "#eff6ff",
@@ -143,7 +143,7 @@ export default function Dashboard() {
         </form>
       </div>
 
-      {/* Create workspace */}
+     
       <form
         onSubmit={handleCreate}
         style={{
@@ -167,7 +167,7 @@ export default function Dashboard() {
         </button>
       </form>
 
-      {/* Workspace grid */}
+      
       <div
         style={{
           display: "grid",
@@ -188,7 +188,7 @@ export default function Dashboard() {
               gap: "12px",
             }}
           >
-            {/* Workspace header row */}
+           
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 style={{ fontSize: "18px", margin: 0, color: "#374151" }}>
                 📁 {ws.name}
@@ -212,7 +212,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Documents list */}
+          
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {ws.documents?.map((doc) => (
                 <Link
@@ -236,7 +236,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Add document toggle */}
+           
             {addingDocTo === ws.id ? (
               <form
                 onSubmit={(e) => handleAddDocument(e, ws.id)}
