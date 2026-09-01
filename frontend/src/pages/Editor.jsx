@@ -9,7 +9,12 @@ const MODULES = {
   toolbar: [
     [{ header: [1, 2, 3, false] }],
     ["bold", "italic", "underline", "strike", "blockquote"],
-    [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
     [{ color: [] }, { background: [] }],
     [{ align: [] }],
     ["link", "image"],
@@ -19,11 +24,19 @@ const MODULES = {
 
 const FORMATS = [
   "header",
-  "bold", "italic", "underline", "strike", "blockquote",
-  "list", "bullet", "indent",
-  "color", "background",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "color",
+  "background",
   "align",
-  "link", "image",
+  "link",
+  "image",
 ];
 
 export default function Editor() {
@@ -38,14 +51,12 @@ export default function Editor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savingToDash, setSavingToDash] = useState(false);
-  const [isOwner, setIsOwner] = useState(null); 
-  const contentRef = useState(null); 
+  const [isOwner, setIsOwner] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("workspace_token");
     if (!token) return navigate("/login");
 
-    
     let myname = "Guest_" + Math.floor(Math.random() * 1000);
     let myId = null;
     try {
@@ -56,7 +67,6 @@ export default function Editor() {
       console.log("Could not Get name from Token");
     }
 
-    
     fetch(`${API_URL}/api/documents/${documentId}/owner`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -92,7 +102,6 @@ export default function Editor() {
     }
   };
 
-  
   const handleSave = async () => {
     const token = localStorage.getItem("workspace_token");
     setSaving(true);
@@ -119,7 +128,6 @@ export default function Editor() {
     }
   };
 
-  
   const handleSaveToDashboard = async () => {
     const token = localStorage.getItem("workspace_token");
     setSavingToDash(true);
@@ -133,7 +141,7 @@ export default function Editor() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({}),
-        }
+        },
       );
       const data = await res.json();
       if (res.ok) {
@@ -171,9 +179,13 @@ export default function Editor() {
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.log("Failed to copy URL", err);
+    }
   };
 
   return (
@@ -223,7 +235,7 @@ export default function Editor() {
               fontWeight: "600",
             }}
           >
-             {activeUsers.join(", ")}
+            {activeUsers.join(", ")}
           </div>
         </div>
 
