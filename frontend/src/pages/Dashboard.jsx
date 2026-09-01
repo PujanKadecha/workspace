@@ -45,7 +45,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteWorkspace = async (workspaceId, workspaceName) => {
-    if (!window.confirm(`Delete workspace "${workspaceName}" and ALL its documents? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete workspace "${workspaceName}" and ALL its documents? `)) return;
     const res = await fetch(`${API_URL}/api/workspaces/${workspaceId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token()}` },

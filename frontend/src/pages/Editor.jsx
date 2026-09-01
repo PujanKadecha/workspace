@@ -149,7 +149,7 @@ export default function Editor() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this document? This cannot be undone.")) return;
+    if (!window.confirm("Delete this document?")) return;
     const token = localStorage.getItem("workspace_token");
     setDeleting(true);
     try {
